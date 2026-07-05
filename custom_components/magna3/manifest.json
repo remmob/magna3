@@ -1,0 +1,12 @@
+{
+  "domain": "magna3",
+  "name": "magna3",
+  "codeowners": ["@remmob"],
+  "config_flow": false,
+  "documentation": "https://github.com/remmob/magna3",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/remmob/magna3/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
