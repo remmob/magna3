@@ -2,9 +2,7 @@
 [![en](https://img.shields.io/badge/lang-en-red.svg)](README.md)
 [![nl](https://img.shields.io/badge/lang-nl-orange.svg)](README.nl.md)
 
-[![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1%2B-41BDF5.svg)](https://www.home-assistant.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Version](https://img.shields.io/github/v/release/remmob/magna3 'Release') ![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg 'HACS Custom') [![total issues](https://img.shields.io/github/issues/remmob/magna3 'Total issues')](https://github.com/remmob/magna3/issues) ![Stars](https://img.shields.io/github/stars/remmob/magna3)
 
 # Grundfos MAGNA3 – Modbus-integratie voor Home Assistant
 
