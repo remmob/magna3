@@ -1,12 +1,11 @@
 {
   "domain": "magna3",
-  "name": "magna3",
+  "name": "Grundfos MAGNA3",
   "codeowners": ["@remmob"],
-  "config_flow": false,
+  "config_flow": true,
   "documentation": "https://github.com/remmob/magna3",
-  "integration_type": "hub",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/remmob/magna3/issues",
-  "requirements": [],
-  "version": "0.1.0"
+  "requirements": ["pymodbus>=3.6.9", "pyserial>=3.5"],
+  "version": "1.0.0"
 }

@@ -1,0 +1,327 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Grundfos MAGNA3",
+        "description": "Connect to a Grundfos MAGNA3 pump with a CIM 200 (Modbus RTU) or CIM 500 (Modbus TCP) module.",
+        "data": {
+          "name": "Name",
+          "device_id": "Modbus unit ID",
+          "mode": "Connection type"
+        },
+        "data_description": {
+          "device_id": "The Modbus slave address of the CIM module (1-247)."
+        }
+      },
+      "tcp": {
+        "title": "Modbus TCP connection",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "scan_interval": "Scan interval (seconds)"
+        },
+        "data_description": {
+          "host": "IP address or hostname of the CIM 500 module or Modbus TCP gateway.",
+          "scan_interval": "How often the pump is polled."
+        }
+      },
+      "serial": {
+        "title": "Modbus RTU connection",
+        "data": {
+          "device": "Serial device",
+          "baudrate": "Baud rate",
+          "parity": "Parity",
+          "stopbits": "Stop bits",
+          "scan_interval": "Scan interval (seconds)"
+        },
+        "data_description": {
+          "device": "The serial port connected to the CIM 200 module.",
+          "parity": "CIM 200 supports even parity with 1 stop bit (default) or no parity with 2 stop bits."
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "sections": {
+          "general": {
+            "name": "General",
+            "description": "Channels and options shared by every notification.",
+            "data": {
+              "notify_persistent": "Persistent notifications"
+            },
+            "data_description": {
+              "notify_persistent": "Also show notifications as persistent notifications in the Home Assistant interface."
+            }
+          },
+          "connection": {
+            "name": "Connection errors",
+            "description": "Notifications when the Modbus connection is lost or the pump stops responding to the CIM module.",
+            "data": {
+              "notify_connection_errors": "Notify on connection errors",
+              "connection_notify_recovery": "Notify on recovery",
+              "connection_notify_services": "Mobile notify services",
+              "connection_error_notification_title": "Notification subject",
+              "connection_error_delay": "Delay before notifying (seconds)",
+              "connection_quiet_hours_enabled": "Enable quiet hours",
+              "connection_quiet_hours_start": "Quiet hours start",
+              "connection_quiet_hours_end": "Quiet hours end"
+            },
+            "data_description": {
+              "connection_notify_recovery": "Send a notification once the connection is restored.",
+              "connection_notify_services": "Mobile services that receive connection notifications only.",
+              "connection_error_delay": "How long the connection must be lost before a notification is sent.",
+              "connection_quiet_hours_enabled": "During quiet hours, mobile notifications are held and delivered once the period ends. Persistent notifications are never held."
+            }
+          },
+          "alarm": {
+            "name": "Alarms",
+            "description": "Notifications for pump alarm codes.",
+            "data": {
+              "notify_alarms": "Notify on alarms",
+              "alarm_notify_recovery": "Notify on recovery",
+              "alarm_notify_services": "Mobile notify services",
+              "alarm_notification_title": "Notification subject",
+              "alarm_delay": "Confirmation delay (seconds)",
+              "alarm_quiet_hours_enabled": "Enable quiet hours",
+              "alarm_quiet_hours_start": "Quiet hours start",
+              "alarm_quiet_hours_end": "Quiet hours end"
+            },
+            "data_description": {
+              "alarm_notify_recovery": "Send a notification once the alarm has cleared.",
+              "alarm_notify_services": "Mobile services that receive alarm notifications only.",
+              "alarm_delay": "An alarm is re-checked after this delay before a notification is sent; this avoids notifications for short-lived alarms.",
+              "alarm_quiet_hours_enabled": "During quiet hours, mobile alarm notifications are held and delivered once the period ends. Persistent notifications are never held."
+            }
+          },
+          "warning": {
+            "name": "Warnings",
+            "description": "Notifications for pump warning codes.",
+            "data": {
+              "notify_warnings": "Notify on warnings",
+              "warning_notify_recovery": "Notify on recovery",
+              "warning_notify_services": "Mobile notify services",
+              "warning_notification_title": "Notification subject",
+              "warning_delay": "Confirmation delay (seconds)",
+              "warning_quiet_hours_enabled": "Enable quiet hours",
+              "warning_quiet_hours_start": "Quiet hours start",
+              "warning_quiet_hours_end": "Quiet hours end"
+            },
+            "data_description": {
+              "warning_notify_recovery": "Send a notification once the warning has cleared.",
+              "warning_notify_services": "Mobile services that receive warning notifications only.",
+              "warning_delay": "A warning is re-checked after this delay before a notification is sent; this avoids notifications for short-lived warnings.",
+              "warning_quiet_hours_enabled": "During quiet hours, mobile warning notifications are held and delivered once the period ends. Persistent notifications are never held."
+            }
+          }
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Grundfos MAGNA3",
+        "data": {
+          "name": "Name",
+          "device_id": "Modbus unit ID",
+          "mode": "Connection type"
+        }
+      },
+      "reconfigure_tcp": {
+        "title": "Modbus TCP connection",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "scan_interval": "Scan interval (seconds)"
+        }
+      },
+      "reconfigure_serial": {
+        "title": "Modbus RTU connection",
+        "data": {
+          "device": "Serial device",
+          "baudrate": "Baud rate",
+          "parity": "Parity",
+          "stopbits": "Stop bits",
+          "scan_interval": "Scan interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "invalid_host": "Invalid hostname or IP address",
+      "invalid_serial_port": "Invalid serial port",
+      "already_configured": "This connection is already configured"
+    },
+    "abort": {
+      "already_configured": "This connection is already configured",
+      "reconfigure_successful": "Reconfiguration successful",
+      "unknown": "Unknown error"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Grundfos MAGNA3 options",
+        "data": {
+          "scan_interval": "Scan interval (seconds)"
+        },
+        "data_description": {
+          "scan_interval": "How often the pump is polled."
+        },
+        "sections": {
+          "general": {
+            "name": "General",
+            "description": "Channels and options shared by every notification.",
+            "data": {
+              "notify_persistent": "Persistent notifications"
+            },
+            "data_description": {
+              "notify_persistent": "Also show notifications as persistent notifications in the Home Assistant interface."
+            }
+          },
+          "connection": {
+            "name": "Connection errors",
+            "description": "Notifications when the Modbus connection is lost or the pump stops responding to the CIM module.",
+            "data": {
+              "notify_connection_errors": "Notify on connection errors",
+              "connection_notify_recovery": "Notify on recovery",
+              "connection_notify_services": "Mobile notify services",
+              "connection_error_notification_title": "Notification subject",
+              "connection_error_delay": "Delay before notifying (seconds)",
+              "connection_quiet_hours_enabled": "Enable quiet hours",
+              "connection_quiet_hours_start": "Quiet hours start",
+              "connection_quiet_hours_end": "Quiet hours end"
+            },
+            "data_description": {
+              "connection_notify_recovery": "Send a notification once the connection is restored.",
+              "connection_notify_services": "Mobile services that receive connection notifications only.",
+              "connection_error_delay": "How long the connection must be lost before a notification is sent.",
+              "connection_quiet_hours_enabled": "During quiet hours, mobile notifications are held and delivered once the period ends. Persistent notifications are never held."
+            }
+          },
+          "alarm": {
+            "name": "Alarms",
+            "description": "Notifications for pump alarm codes.",
+            "data": {
+              "notify_alarms": "Notify on alarms",
+              "alarm_notify_recovery": "Notify on recovery",
+              "alarm_notify_services": "Mobile notify services",
+              "alarm_notification_title": "Notification subject",
+              "alarm_delay": "Confirmation delay (seconds)",
+              "alarm_quiet_hours_enabled": "Enable quiet hours",
+              "alarm_quiet_hours_start": "Quiet hours start",
+              "alarm_quiet_hours_end": "Quiet hours end"
+            },
+            "data_description": {
+              "alarm_notify_recovery": "Send a notification once the alarm has cleared.",
+              "alarm_notify_services": "Mobile services that receive alarm notifications only.",
+              "alarm_delay": "An alarm is re-checked after this delay before a notification is sent; this avoids notifications for short-lived alarms.",
+              "alarm_quiet_hours_enabled": "During quiet hours, mobile alarm notifications are held and delivered once the period ends. Persistent notifications are never held."
+            }
+          },
+          "warning": {
+            "name": "Warnings",
+            "description": "Notifications for pump warning codes.",
+            "data": {
+              "notify_warnings": "Notify on warnings",
+              "warning_notify_recovery": "Notify on recovery",
+              "warning_notify_services": "Mobile notify services",
+              "warning_notification_title": "Notification subject",
+              "warning_delay": "Confirmation delay (seconds)",
+              "warning_quiet_hours_enabled": "Enable quiet hours",
+              "warning_quiet_hours_start": "Quiet hours start",
+              "warning_quiet_hours_end": "Quiet hours end"
+            },
+            "data_description": {
+              "warning_notify_recovery": "Send a notification once the warning has cleared.",
+              "warning_notify_services": "Mobile services that receive warning notifications only.",
+              "warning_delay": "A warning is re-checked after this delay before a notification is sent; this avoids notifications for short-lived warnings.",
+              "warning_quiet_hours_enabled": "During quiet hours, mobile warning notifications are held and delivered once the period ends. Persistent notifications are never held."
+            }
+          }
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "not_remote_controlled": {
+      "message": "The pump is not in remote control mode. Turn on the 'Remote control' switch first."
+    },
+    "write_failed": {
+      "message": "Writing to the pump failed. Check the Modbus connection."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "head": {"name": "Head"},
+      "flow": {"name": "Flow"},
+      "relative_performance": {"name": "Relative performance"},
+      "speed": {"name": "Speed"},
+      "frequency": {"name": "Frequency"},
+      "actual_setpoint": {"name": "Actual setpoint"},
+      "motor_current": {"name": "Motor current"},
+      "dc_link_voltage": {"name": "DC-link voltage"},
+      "process_feedback": {"name": "Process feedback"},
+      "remote_pressure_1": {"name": "Remote pressure 1"},
+      "electronics_temperature": {"name": "Electronics temperature"},
+      "liquid_temperature": {"name": "Liquid temperature"},
+      "specific_energy": {"name": "Specific energy consumption"},
+      "remote_temperature_2": {"name": "Remote temperature 2"},
+      "differential_pressure": {"name": "Differential pressure"},
+      "power": {"name": "Power"},
+      "energy": {"name": "Energy"},
+      "operating_time": {"name": "Operating time"},
+      "powered_time": {"name": "Powered time"},
+      "starts": {"name": "Number of starts"},
+      "volume": {"name": "Pumped volume"},
+      "heat_energy": {"name": "Heat energy"},
+      "heat_power": {"name": "Heat power"},
+      "alarm": {"name": "Alarm"},
+      "warning": {"name": "Warning"},
+      "connection_status": {"name": "Connection status"}
+    },
+    "binary_sensor": {
+      "pump_link": {"name": "Pump communication"},
+      "running": {"name": "Running"},
+      "fault": {"name": "Fault"},
+      "warning": {"name": "Warning"},
+      "at_max_power": {"name": "At power limit"},
+      "at_max_speed": {"name": "At maximum speed"},
+      "forced_to_local": {"name": "Forced to local"},
+      "connectivity": {"name": "Connectivity"}
+    },
+    "switch": {
+      "remote_control": {"name": "Remote control"},
+      "pump": {"name": "Pump"},
+      "flow_limit_enabled": {"name": "Flow limit"}
+    },
+    "select": {
+      "control_mode": {
+        "name": "Control mode",
+        "state": {
+          "constant_speed": "Constant curve",
+          "constant_frequency": "Constant frequency",
+          "constant_head": "Constant head",
+          "constant_pressure": "Constant pressure",
+          "constant_diff_pressure": "Constant differential pressure",
+          "proportional_pressure": "Proportional pressure",
+          "constant_flow": "Constant flow",
+          "constant_temperature": "Constant temperature",
+          "constant_level": "Constant level",
+          "auto_adapt": "AUTOADAPT",
+          "flow_limit": "FLOWLIMIT",
+          "closed_loop_sensor": "Closed-loop sensor"
+        }
+      },
+      "operation_mode": {
+        "name": "Operating mode",
+        "state": {
+          "normal": "Normal (setpoint control)",
+          "minimum": "Minimum speed",
+          "maximum": "Maximum speed"
+        }
+      }
+    },
+    "number": {
+      "setpoint": {"name": "Setpoint"},
+      "max_flow_limit": {"name": "Maximum flow limit"}
+    },
+    "button": {
+      "reset_alarm": {"name": "Reset alarm"}
+    }
+  }
+}

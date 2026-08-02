@@ -1,0 +1,328 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Grundfos MAGNA3",
+        "description": "Verbind met een Grundfos MAGNA3-pomp met een CIM 200- (Modbus RTU) of CIM 500-module (Modbus TCP).",
+        "data": {
+          "name": "Naam",
+          "device_id": "Modbus unit-ID",
+          "mode": "Verbindingstype"
+        },
+        "data_description": {
+          "device_id": "Het Modbus slave-adres van de CIM-module (1-247)."
+        }
+      },
+      "tcp": {
+        "title": "Modbus TCP-verbinding",
+        "data": {
+          "host": "Host",
+          "port": "Poort",
+          "scan_interval": "Scaninterval (seconden)"
+        },
+        "data_description": {
+          "host": "IP-adres of hostnaam van de CIM 500-module of Modbus TCP-gateway.",
+          "scan_interval": "Hoe vaak de pomp wordt uitgelezen."
+        }
+      },
+      "serial": {
+        "title": "Modbus RTU-verbinding",
+        "data": {
+          "device": "Seriële poort",
+          "baudrate": "Baudrate",
+          "parity": "Pariteit",
+          "stopbits": "Stopbits",
+          "scan_interval": "Scaninterval (seconden)"
+        },
+        "data_description": {
+          "device": "De seriële poort die op de CIM 200-module is aangesloten.",
+          "parity": "CIM 200 ondersteunt even pariteit met 1 stopbit (standaard) of geen pariteit met 2 stopbits."
+        }
+      },
+      "notifications": {
+        "title": "Notificaties",
+        "sections": {
+          "general": {
+            "name": "Algemeen",
+            "description": "Kanalen en opties die voor alle meldingen gelden.",
+            "data": {
+              "notify_persistent": "Permanente meldingen"
+            },
+            "data_description": {
+              "notify_persistent": "Toon meldingen ook als permanente melding in de Home Assistant-interface."
+            }
+          },
+          "connection": {
+            "name": "Verbindingsfouten",
+            "description": "Meldingen wanneer de Modbus-verbinding wegvalt of de pomp niet meer op de CIM-module reageert.",
+            "data": {
+              "notify_connection_errors": "Melden bij verbindingsfouten",
+              "connection_notify_recovery": "Melden bij herstel",
+              "connection_notify_services": "Mobiele notify-services",
+              "connection_error_notification_title": "Meldingsonderwerp",
+              "connection_error_delay": "Vertraging voordat gemeld wordt (seconden)",
+              "connection_quiet_hours_enabled": "Stille uren inschakelen",
+              "connection_quiet_hours_start": "Start stille uren",
+              "connection_quiet_hours_end": "Einde stille uren"
+            },
+            "data_description": {
+              "connection_notify_recovery": "Stuur een melding zodra de verbinding is hersteld.",
+              "connection_notify_services": "Mobiele services die alleen verbindingsmeldingen ontvangen.",
+              "connection_error_delay": "Hoe lang de verbinding weg moet zijn voordat een melding wordt verstuurd.",
+              "connection_quiet_hours_enabled": "Tijdens de stille uren worden mobiele meldingen vastgehouden en pas afgeleverd zodra de periode voorbij is. Permanente meldingen worden nooit vastgehouden."
+            }
+          },
+          "alarm": {
+            "name": "Alarmen",
+            "description": "Meldingen voor alarmcodes van de pomp.",
+            "data": {
+              "notify_alarms": "Melden bij alarmen",
+              "alarm_notify_recovery": "Melden bij herstel",
+              "alarm_notify_services": "Mobiele notify-services",
+              "alarm_notification_title": "Meldingsonderwerp",
+              "alarm_delay": "Bevestigingsvertraging (seconden)",
+              "alarm_quiet_hours_enabled": "Stille uren inschakelen",
+              "alarm_quiet_hours_start": "Start stille uren",
+              "alarm_quiet_hours_end": "Einde stille uren"
+            },
+            "data_description": {
+              "alarm_notify_recovery": "Stuur een melding zodra het alarm is verdwenen.",
+              "alarm_notify_services": "Mobiele services die alleen alarmmeldingen ontvangen.",
+              "alarm_delay": "Een alarm wordt na deze vertraging opnieuw gecontroleerd voordat een melding wordt verstuurd; dit voorkomt meldingen bij kortstondige alarmen.",
+              "alarm_quiet_hours_enabled": "Tijdens de stille uren worden mobiele alarmmeldingen vastgehouden en pas afgeleverd zodra de periode voorbij is. Permanente meldingen worden nooit vastgehouden."
+            }
+          },
+          "warning": {
+            "name": "Waarschuwingen",
+            "description": "Meldingen voor waarschuwingscodes van de pomp.",
+            "data": {
+              "notify_warnings": "Melden bij waarschuwingen",
+              "warning_notify_recovery": "Melden bij herstel",
+              "warning_notify_services": "Mobiele notify-services",
+              "warning_notification_title": "Meldingsonderwerp",
+              "warning_delay": "Bevestigingsvertraging (seconden)",
+              "warning_quiet_hours_enabled": "Stille uren inschakelen",
+              "warning_quiet_hours_start": "Start stille uren",
+              "warning_quiet_hours_end": "Einde stille uren"
+            },
+            "data_description": {
+              "warning_notify_recovery": "Stuur een melding zodra de waarschuwing is verdwenen.",
+              "warning_notify_services": "Mobiele services die alleen waarschuwingsmeldingen ontvangen.",
+              "warning_delay": "Een waarschuwing wordt na deze vertraging opnieuw gecontroleerd voordat een melding wordt verstuurd; dit voorkomt meldingen bij kortstondige waarschuwingen.",
+              "warning_quiet_hours_enabled": "Tijdens de stille uren worden mobiele waarschuwingsmeldingen vastgehouden en pas afgeleverd zodra de periode voorbij is. Permanente meldingen worden nooit vastgehouden."
+            }
+          }
+        }
+      },
+      "reconfigure": {
+        "title": "Grundfos MAGNA3 opnieuw configureren",
+        "data": {
+          "name": "Naam",
+          "device_id": "Modbus unit-ID",
+          "mode": "Verbindingstype"
+        }
+      },
+      "reconfigure_tcp": {
+        "title": "Modbus TCP-verbinding",
+        "data": {
+          "host": "Host",
+          "port": "Poort",
+          "scan_interval": "Scaninterval (seconden)"
+        }
+      },
+      "reconfigure_serial": {
+        "title": "Modbus RTU-verbinding",
+        "data": {
+          "device": "Seriële poort",
+          "baudrate": "Baudrate",
+          "parity": "Pariteit",
+          "stopbits": "Stopbits",
+          "scan_interval": "Scaninterval (seconden)"
+        }
+      }
+    },
+    "error": {
+      "invalid_host": "Ongeldige hostnaam of ongeldig IP-adres",
+      "invalid_serial_port": "Ongeldige seriële poort",
+      "already_configured": "Deze verbinding is al geconfigureerd"
+    },
+    "abort": {
+      "already_configured": "Deze verbinding is al geconfigureerd",
+      "reconfigure_successful": "Opnieuw configureren geslaagd",
+      "unknown": "Onbekende fout"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Grundfos MAGNA3-opties",
+        "data": {
+          "scan_interval": "Scaninterval (seconden)"
+        },
+        "data_description": {
+          "scan_interval": "Hoe vaak de pomp wordt uitgelezen."
+        },
+        "sections": {
+          "general": {
+            "name": "Algemeen",
+            "description": "Kanalen en opties die voor alle meldingen gelden.",
+            "data": {
+              "notify_persistent": "Permanente meldingen"
+            },
+            "data_description": {
+              "notify_persistent": "Toon meldingen ook als permanente melding in de Home Assistant-interface."
+            }
+          },
+          "connection": {
+            "name": "Verbindingsfouten",
+            "description": "Meldingen wanneer de Modbus-verbinding wegvalt of de pomp niet meer op de CIM-module reageert.",
+            "data": {
+              "notify_connection_errors": "Melden bij verbindingsfouten",
+              "connection_notify_recovery": "Melden bij herstel",
+              "connection_notify_services": "Mobiele notify-services",
+              "connection_error_notification_title": "Meldingsonderwerp",
+              "connection_error_delay": "Vertraging voordat gemeld wordt (seconden)",
+              "connection_quiet_hours_enabled": "Stille uren inschakelen",
+              "connection_quiet_hours_start": "Start stille uren",
+              "connection_quiet_hours_end": "Einde stille uren"
+            },
+            "data_description": {
+              "connection_notify_recovery": "Stuur een melding zodra de verbinding is hersteld.",
+              "connection_notify_services": "Mobiele services die alleen verbindingsmeldingen ontvangen.",
+              "connection_error_delay": "Hoe lang de verbinding weg moet zijn voordat een melding wordt verstuurd.",
+              "connection_quiet_hours_enabled": "Tijdens de stille uren worden mobiele meldingen vastgehouden en pas afgeleverd zodra de periode voorbij is. Permanente meldingen worden nooit vastgehouden."
+            }
+          },
+          "alarm": {
+            "name": "Alarmen",
+            "description": "Meldingen voor alarmcodes van de pomp.",
+            "data": {
+              "notify_alarms": "Melden bij alarmen",
+              "alarm_notify_recovery": "Melden bij herstel",
+              "alarm_notify_services": "Mobiele notify-services",
+              "alarm_notification_title": "Meldingsonderwerp",
+              "alarm_delay": "Bevestigingsvertraging (seconden)",
+              "alarm_quiet_hours_enabled": "Stille uren inschakelen",
+              "alarm_quiet_hours_start": "Start stille uren",
+              "alarm_quiet_hours_end": "Einde stille uren"
+            },
+            "data_description": {
+              "alarm_notify_recovery": "Stuur een melding zodra het alarm is verdwenen.",
+              "alarm_notify_services": "Mobiele services die alleen alarmmeldingen ontvangen.",
+              "alarm_delay": "Een alarm wordt na deze vertraging opnieuw gecontroleerd voordat een melding wordt verstuurd; dit voorkomt meldingen bij kortstondige alarmen.",
+              "alarm_quiet_hours_enabled": "Tijdens de stille uren worden mobiele alarmmeldingen vastgehouden en pas afgeleverd zodra de periode voorbij is. Permanente meldingen worden nooit vastgehouden."
+            }
+          },
+          "warning": {
+            "name": "Waarschuwingen",
+            "description": "Meldingen voor waarschuwingscodes van de pomp.",
+            "data": {
+              "notify_warnings": "Melden bij waarschuwingen",
+              "warning_notify_recovery": "Melden bij herstel",
+              "warning_notify_services": "Mobiele notify-services",
+              "warning_notification_title": "Meldingsonderwerp",
+              "warning_delay": "Bevestigingsvertraging (seconden)",
+              "warning_quiet_hours_enabled": "Stille uren inschakelen",
+              "warning_quiet_hours_start": "Start stille uren",
+              "warning_quiet_hours_end": "Einde stille uren"
+            },
+            "data_description": {
+              "warning_notify_recovery": "Stuur een melding zodra de waarschuwing is verdwenen.",
+              "warning_notify_services": "Mobiele services die alleen waarschuwingsmeldingen ontvangen.",
+              "warning_delay": "Een waarschuwing wordt na deze vertraging opnieuw gecontroleerd voordat een melding wordt verstuurd; dit voorkomt meldingen bij kortstondige waarschuwingen.",
+              "warning_quiet_hours_enabled": "Tijdens de stille uren worden mobiele waarschuwingsmeldingen vastgehouden en pas afgeleverd zodra de periode voorbij is. Permanente meldingen worden nooit vastgehouden."
+            }
+          }
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "not_remote_controlled": {
+      "message": "De pomp staat niet in bediening op afstand. Zet eerst de schakelaar 'Bediening op afstand' aan."
+    },
+    "write_failed": {
+      "message": "Schrijven naar de pomp is mislukt. Controleer de Modbus-verbinding."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "head": {"name": "Opvoerhoogte"},
+      "flow": {"name": "Debiet"},
+      "relative_performance": {"name": "Relatief vermogen"},
+      "speed": {"name": "Toerental"},
+      "frequency": {"name": "Frequentie"},
+      "actual_setpoint": {"name": "Actueel setpoint"},
+      "motor_current": {"name": "Motorstroom"},
+      "dc_link_voltage": {"name": "DC-tussenkringspanning"},
+      "process_feedback": {"name": "Procesterugkoppeling"},
+      "remote_pressure_1": {"name": "Externe druk 1"},
+      "electronics_temperature": {"name": "Elektronicatemperatuur"},
+      "liquid_temperature": {"name": "Mediumtemperatuur"},
+      "specific_energy": {"name": "Specifiek energieverbruik"},
+      "remote_temperature_2": {"name": "Externe temperatuur 2"},
+      "differential_pressure": {"name": "Verschildruk"},
+      "power": {"name": "Vermogen"},
+      "energy": {"name": "Energieverbruik"},
+      "operating_time": {"name": "Bedrijfsuren"},
+      "powered_time": {"name": "Ingeschakelde tijd"},
+      "starts": {"name": "Aantal starts"},
+      "volume": {"name": "Verpompt volume"},
+      "heat_energy": {"name": "Warmte-energie"},
+      "heat_power": {"name": "Warmtevermogen"},
+      "alarm": {"name": "Alarm"},
+      "warning": {"name": "Waarschuwing"},
+      "connection_status": {"name": "Verbindingsstatus"}
+    },
+    "binary_sensor": {
+      "pump_link": {"name": "Pompcommunicatie"},
+      "running": {"name": "In bedrijf"},
+      "fault": {"name": "Storing"},
+      "warning": {"name": "Waarschuwing"},
+      "at_max_power": {"name": "Op vermogensgrens"},
+      "at_max_speed": {"name": "Op maximaal toerental"},
+      "at_min_speed": {"name": "Op minimaal toerental"},
+      "forced_to_local": {"name": "Geforceerd lokaal"},
+      "connectivity": {"name": "CIM-verbinding"}
+    },
+    "switch": {
+      "remote_control": {"name": "Bediening op afstand"},
+      "pump": {"name": "Pomp"},
+      "flow_limit_enabled": {"name": "Debietbegrenzing"}
+    },
+    "select": {
+      "control_mode": {
+        "name": "Regelmodus",
+        "state": {
+          "constant_speed": "Constante curve",
+          "constant_frequency": "Constante frequentie",
+          "constant_head": "Constante opvoerhoogte",
+          "constant_pressure": "Constante druk",
+          "constant_diff_pressure": "Constante verschildruk",
+          "proportional_pressure": "Proportionele druk",
+          "constant_flow": "Constant debiet",
+          "constant_temperature": "Constante temperatuur",
+          "constant_level": "Constant niveau",
+          "auto_adapt": "AUTOADAPT",
+          "flow_limit": "FLOWLIMIT",
+          "closed_loop_sensor": "Gesloten regelkring (sensor)"
+        }
+      },
+      "operation_mode": {
+        "name": "Bedrijfsmodus",
+        "state": {
+          "normal": "Normaal (setpointregeling)",
+          "minimum": "Minimaal toerental",
+          "maximum": "Maximaal toerental"
+        }
+      }
+    },
+    "number": {
+      "setpoint": {"name": "Setpoint"},
+      "max_flow_limit": {"name": "Maximale-debietbegrenzing"}
+    },
+    "button": {
+      "reset_alarm": {"name": "Alarm resetten"}
+    }
+  }
+}
