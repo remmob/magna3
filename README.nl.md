@@ -2,11 +2,11 @@
 [![en](https://img.shields.io/badge/lang-en-red.svg)](README.md)
 [![nl](https://img.shields.io/badge/lang-nl-orange.svg)](README.nl.md)
 
-# Grundfos MAGNA3 – Modbus-integratie voor Home Assistant
-
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1%2B-41BDF5.svg)](https://www.home-assistant.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+# Grundfos MAGNA3 – Modbus-integratie voor Home Assistant
 
 Bewaak en bedien een **Grundfos MAGNA3**-circulatiepomp vanuit Home
 Assistant via Modbus — met een **CIM 200**-module (Modbus RTU/serieel) of
