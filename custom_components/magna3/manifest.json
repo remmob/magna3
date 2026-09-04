@@ -9,5 +9,5 @@
   "issue_tracker": "https://github.com/remmob/magna3/issues",
   "loggers": ["modbus_connection", "tmodbus"],
   "requirements": ["modbus-connection[tmodbus]>=4.10.0,<5"],
-  "version": "1.1.0-beta1"
+  "version": "1.1.0-beta2"
 }
