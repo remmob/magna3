@@ -2,5 +2,7 @@
   "name": "Grundfos MAGNA3",
   "content_in_root": false,
   "homeassistant": "2024.6.0",
-  "render_readme": false
+  "render_readme": false,
+  "zip_release": true,
+  "filename": "magna3.zip"
 }
