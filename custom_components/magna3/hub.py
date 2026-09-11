@@ -3,17 +3,23 @@
 Grundfos documentation register number X is addressed as X-1 on the wire;
 all public APIs of this hub take Grundfos register numbers and subtract 1
 internally.
+
+Stuck-link detection: modbus_connection reconnects automatically after a
+dropped connection, but a network-to-serial bridge (e.g. a CIM 500 or an
+Elfin EW-11) can keep a socket open while the pump behind it stops
+responding - the socket looks healthy so nothing triggers a reconnect, and
+every read just times out on the same dead link. `_track_timeout` below
+detects that pattern (across a whole poll, not per range) and forces a
+disconnect so the next poll opens a fresh connection.
 """
 
 from __future__ import annotations
 
+import asyncio
 import logging
-import threading
-import time
 from datetime import datetime, timedelta
 
-from pymodbus.client import ModbusSerialClient, ModbusTcpClient
-from pymodbus.exceptions import ConnectionException, ModbusIOException
+from modbus_connection import ModbusError, ModbusTimeoutError, ModbusUnit
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -21,7 +27,6 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .const import (
     CONTROL_BIT_RESET_ALARM,
     GENIBUS_STALE_POLLS,
-    MODE_SERIAL,
     READ_RANGES,
     REG_ALARM_CODE,
     REG_CONTROL_BITS,
@@ -41,26 +46,22 @@ _LOGGER = logging.getLogger(__name__)
 
 MAX_READ_RETRIES = 3
 MAX_WRITE_RETRIES = 2
-STALE_CONNECTION_SECONDS = 300
+
+# This many consecutive polls that ended in a timeout means a stuck link: the
+# socket is still open but the pump behind it has stopped responding, so
+# automatic reconnection has nothing to reconnect. See _track_timeout below.
+STUCK_LINK_TIMEOUTS = 3
 
 
 class Magna3Hub(DataUpdateCoordinator[dict]):
-    """Thread-safe pymodbus wrapper and data coordinator for a MAGNA3 pump."""
+    """Coordinator that polls a MAGNA3 pump over a Modbus unit."""
 
     def __init__(
         self,
         hass: HomeAssistant,
         name: str,
+        unit: ModbusUnit,
         scan_interval: int,
-        mode: str,
-        device_id: int,
-        host: str | None = None,
-        port: int | None = None,
-        device: str | None = None,
-        baudrate: int | None = None,
-        bytesize: int | None = None,
-        parity: str | None = None,
-        stopbits: int | None = None,
         notify_connection_errors: bool = False,
         notify_persistent: bool = True,
         notify_recovery: bool = True,
@@ -74,21 +75,12 @@ class Magna3Hub(DataUpdateCoordinator[dict]):
         super().__init__(
             hass, _LOGGER, name=name, update_interval=timedelta(seconds=scan_interval)
         )
-        self._mode = mode
-        self._unit = int(device_id)
-        self._host = host
-        self._port = int(port) if port is not None else None
-        self._device = device
-        self._baudrate = int(baudrate) if baudrate is not None else None
-        self._bytesize = int(bytesize) if bytesize is not None else None
-        self._parity = parity
-        self._stopbits = int(stopbits) if stopbits is not None else None
-
-        self._client = None
-        self._lock = threading.Lock()
-        self._modbus_lock = threading.Lock()
+        self._unit = unit
         self._static_data: dict = {}
-        self._last_successful_read: datetime | None = None
+        # Number of consecutive polls that ended in a timeout. See
+        # _track_timeout() for where this resets and what happens when the
+        # counter fills up.
+        self._consecutive_timeouts = 0
 
         self._notify_connection_errors = notify_connection_errors
         self._notify_persistent = notify_persistent
@@ -114,146 +106,117 @@ class Magna3Hub(DataUpdateCoordinator[dict]):
         self._genibus_stale_polls = 0
         self._genibus_notified = False
 
-        self._client = self._create_client()
-
-    # --- Client management -------------------------------------------------
-
-    def _create_client(self):
-        if self._mode == MODE_SERIAL:
-            _LOGGER.debug(
-                "Modbus serial client for %s (baudrate=%s, parity=%s, stopbits=%s)",
-                self._device,
-                self._baudrate,
-                self._parity,
-                self._stopbits,
-            )
-            return ModbusSerialClient(
-                port=self._device,
-                baudrate=self._baudrate,
-                bytesize=self._bytesize,
-                parity=self._parity,
-                stopbits=self._stopbits,
-                timeout=3,
-            )
-        _LOGGER.debug("Modbus TCP client for %s:%s", self._host, self._port)
-        return ModbusTcpClient(host=self._host, port=self._port, timeout=3)
-
-    def _reset_client(self) -> None:
-        """Close the current client so the next transaction reconnects."""
-        if self._client is not None:
-            try:
-                self._client.close()
-            except Exception:
-                pass
-            self._client = None
-
-    def _ensure_connected(self) -> bool:
-        if self._client is None or not self._client.connected:
-            _LOGGER.debug("Modbus client not connected, attempting reconnect")
-            self._reset_client()
-            self._client = self._create_client()
-            if not self._client.connect():
-                _LOGGER.error("Modbus reconnect failed")
-                return False
-        return True
-
     def start_notifications(self) -> None:
         """Start the quiet-hours release trigger for connection notifications."""
         self._quiet.start()
 
     def close(self) -> None:
-        """Disconnect the Modbus client."""
+        """Stop the quiet-hours trigger.
+
+        The Modbus connection itself is not ours to close: connection.py
+        registered its own teardown (entry.async_on_unload) when the unit was
+        set up, whether that is Home Assistant's shared connection or one we
+        opened ourselves.
+        """
         self._quiet.stop()
-        try:
-            with self._lock:
-                self._reset_client()
-            _LOGGER.debug("Modbus client connection closed")
-        except Exception as err:
-            _LOGGER.exception("Error closing Modbus connection: %s", err)
 
     # --- Low-level read/write ----------------------------------------------
 
-    def _read_registers(self, register: int, count: int):
-        """Read `count` registers starting at Grundfos register number."""
-        address = register - 1
-        try:
-            if not self._ensure_connected():
-                return None
-            with self._modbus_lock:
-                response = self._client.read_holding_registers(
-                    address=address, count=count, device_id=self._unit
-                )
-            if response is None or not hasattr(response, "registers"):
-                return None
-            if response.isError():
-                _LOGGER.warning("Forcing reconnect due to Modbus error frame")
-                self._reset_client()
-                return None
-            return response
-        except (ConnectionException, ModbusIOException, OSError) as err:
-            _LOGGER.error(
-                "Modbus communication error reading %s-%s: %s",
-                register,
-                register + count - 1,
-                err,
-            )
-            self._reset_client()
-            return None
-        except Exception as err:
-            _LOGGER.exception(
-                "Unexpected error reading %s-%s: %s", register, register + count - 1, err
-            )
-            return None
+    async def _read_range(self, register: int, count: int) -> tuple[list[int] | None, bool]:
+        """Read `count` registers starting at Grundfos register number.
 
-    def _write_register_sync(self, register: int, value: int) -> bool:
-        """Write a single register (Grundfos register number)."""
+        Retries transient failures up to MAX_READ_RETRIES times. Returns
+        (registers, timed_out) - timed_out reflects only the final attempt,
+        and is used by the caller to track a stuck link across a whole poll.
+        """
         address = register - 1
-        try:
-            if not self._ensure_connected():
-                return False
-            with self._modbus_lock:
-                response = self._client.write_register(
-                    address=address, value=int(value) & 0xFFFF, device_id=self._unit
+        timed_out = False
+
+        for attempt in range(MAX_READ_RETRIES):
+            try:
+                registers = await self._unit.read_holding_registers(address, count)
+                return registers, False
+            except ModbusTimeoutError as err:
+                timed_out = True
+                _LOGGER.debug(
+                    "Attempt %s/%s timed out for range %s-%s: %s",
+                    attempt + 1, MAX_READ_RETRIES, register, register + count - 1, err,
                 )
-            if response is None or response.isError():
-                _LOGGER.error("Write to register %s failed", register)
-                self._reset_client()
-                return False
-            _LOGGER.debug("Wrote %s to register %s", value, register)
-            return True
-        except (ConnectionException, ModbusIOException, OSError) as err:
-            _LOGGER.error("Modbus communication error writing %s: %s", register, err)
-            self._reset_client()
-            return False
-        except Exception as err:
-            _LOGGER.exception("Unexpected error writing %s: %s", register, err)
-            return False
+            except ModbusError as err:
+                timed_out = False
+                _LOGGER.debug(
+                    "Attempt %s/%s failed for range %s-%s: %s",
+                    attempt + 1, MAX_READ_RETRIES, register, register + count - 1, err,
+                )
+            if attempt < MAX_READ_RETRIES - 1:
+                await asyncio.sleep(0.3)
+
+        return None, timed_out
+
+    async def _write_register(self, register: int, value: int) -> bool:
+        """Write a single register (Grundfos register number), with retries."""
+        address = register - 1
+
+        for attempt in range(MAX_WRITE_RETRIES):
+            try:
+                await self._unit.write_register(address, int(value) & 0xFFFF)
+                _LOGGER.debug("Wrote %s to register %s", value, register)
+                return True
+            except ModbusError as err:
+                _LOGGER.warning(
+                    "Attempt %s/%s failed writing register %s: %s",
+                    attempt + 1, MAX_WRITE_RETRIES, register, err,
+                )
+                if attempt < MAX_WRITE_RETRIES - 1:
+                    await asyncio.sleep(0.3)
+
+        _LOGGER.error("Write to register %s failed after %s attempts", register, MAX_WRITE_RETRIES)
+        return False
+
+    async def _track_timeout(self, timed_out: bool) -> None:
+        """Track consecutive timeouts and disconnect once the link looks stuck."""
+        if not timed_out:
+            self._consecutive_timeouts = 0
+            return
+
+        self._consecutive_timeouts += 1
+        if self._consecutive_timeouts >= STUCK_LINK_TIMEOUTS:
+            _LOGGER.warning(
+                "%s consecutive polls timed out; the connection appears "
+                "stuck. Disconnecting so the next poll opens a fresh "
+                "connection.",
+                self._consecutive_timeouts,
+            )
+            await self._unit.disconnect()
+            # Reset to zero, otherwise every following poll would disconnect
+            # again and a fresh connection would never get a chance to prove
+            # itself.
+            self._consecutive_timeouts = 0
 
     # --- Public write API ---------------------------------------------------
 
     async def async_write_register(self, register: int, value: int) -> bool:
         """Write a single register and refresh state."""
-        success = await self.hass.async_add_executor_job(
-            self._write_register_sync, register, value
-        )
+        success = await self._write_register(register, value)
         if success:
             await self.async_request_refresh()
         return success
 
-    def _modify_control_bits_sync(self, set_mask: int, clear_mask: int) -> bool:
+    async def _modify_control_bits(self, set_mask: int, clear_mask: int) -> bool:
         """Read-modify-write the ControlBits register."""
         for attempt in range(MAX_WRITE_RETRIES):
-            response = self._read_registers(REG_CONTROL_BITS, 1)
-            if response is None:
-                time.sleep(0.3)
+            registers, timed_out = await self._read_range(REG_CONTROL_BITS, 1)
+            await self._track_timeout(timed_out)
+            if registers is None:
+                await asyncio.sleep(0.3)
                 continue
-            current = response.registers[0]
+            current = registers[0]
             new_value = (current | set_mask) & ~clear_mask & 0xFFFF
             if new_value == current:
                 return True
-            if self._write_register_sync(REG_CONTROL_BITS, new_value):
+            if await self._write_register(REG_CONTROL_BITS, new_value):
                 return True
-            time.sleep(0.3)
+            await asyncio.sleep(0.3)
         _LOGGER.error(
             "Failed to modify control bits after %s attempts (set=%s, clear=%s)",
             MAX_WRITE_RETRIES,
@@ -265,8 +228,7 @@ class Magna3Hub(DataUpdateCoordinator[dict]):
     async def async_set_control_bit(self, bit: int, value: bool) -> bool:
         """Set or clear a single ControlBits bit and refresh state."""
         mask = 1 << bit
-        success = await self.hass.async_add_executor_job(
-            self._modify_control_bits_sync,
+        success = await self._modify_control_bits(
             mask if value else 0,
             0 if value else mask,
         )
@@ -274,23 +236,17 @@ class Magna3Hub(DataUpdateCoordinator[dict]):
             await self.async_request_refresh()
         return success
 
-    def _reset_alarm_sync(self) -> bool:
-        """Pulse the ResetAlarm control bit (triggered on rising edge)."""
+    async def async_reset_alarm(self) -> bool:
+        """Reset pump alarms and warnings (pulse the ResetAlarm control bit)."""
         mask = 1 << CONTROL_BIT_RESET_ALARM
-        if not self._modify_control_bits_sync(mask, 0):
+        if not await self._modify_control_bits(mask, 0):
             return False
-        time.sleep(0.5)
+        await asyncio.sleep(0.5)
         # Lower the bit again so the next reset produces a new rising edge
         # (also safe when AutoAckControlBits already lowered it).
-        self._modify_control_bits_sync(0, mask)
+        await self._modify_control_bits(0, mask)
+        await self.async_request_refresh()
         return True
-
-    async def async_reset_alarm(self) -> bool:
-        """Reset pump alarms and warnings."""
-        success = await self.hass.async_add_executor_job(self._reset_alarm_sync)
-        if success:
-            await self.async_request_refresh()
-        return success
 
     @property
     def is_remote_controlled(self) -> bool:
@@ -305,30 +261,23 @@ class Magna3Hub(DataUpdateCoordinator[dict]):
 
     # --- Reading ------------------------------------------------------------
 
-    def _read_ranges(
+    async def _read_ranges(
         self, ranges: list[tuple[int, int]]
     ) -> tuple[list[int], list[tuple[int, int]]]:
-        """Read (start_register, count) ranges with retries per range."""
+        """Read (start_register, count) ranges, tolerating individual failures."""
         all_registers: list[int] = []
         failed_ranges: list[tuple[int, int]] = []
+        any_timeout = False
 
         for start, count in ranges:
-            success = False
-            for attempt in range(MAX_READ_RETRIES):
-                response = self._read_registers(start, count)
-                if response is not None and len(response.registers) >= count:
-                    all_registers.extend(response.registers[:count])
-                    success = True
-                    break
-                _LOGGER.debug(
-                    "Attempt %s failed for range %s-%s",
-                    attempt + 1,
-                    start,
-                    start + count - 1,
-                )
-                time.sleep(0.3)
-            if not success:
+            registers, timed_out = await self._read_range(start, count)
+            any_timeout = any_timeout or timed_out
+            if registers is not None and len(registers) >= count:
+                all_registers.extend(registers[:count])
+            else:
                 failed_ranges.append((start, count))
+
+        await self._track_timeout(any_timeout)
 
         if failed_ranges:
             _LOGGER.warning(
@@ -362,10 +311,10 @@ class Magna3Hub(DataUpdateCoordinator[dict]):
             parts += [f"{(lo >> 8) & 0xFF:02x}", f"{lo & 0xFF:02x}"]
         return ".".join(str(int(p, 16)) for p in parts)
 
-    def _read_static_data(self) -> None:
+    async def _read_static_data(self) -> None:
         """Read device identification and pump configuration once."""
         _LOGGER.debug("Reading static device data")
-        registers, failed = self._read_ranges(STATIC_READ_RANGES)
+        registers, failed = await self._read_ranges(STATIC_READ_RANGES)
         if len(failed) == len(STATIC_READ_RANGES):
             return
         register_map = self._build_register_map(STATIC_READ_RANGES, failed)
@@ -391,12 +340,12 @@ class Magna3Hub(DataUpdateCoordinator[dict]):
         self._static_data = static
         _LOGGER.debug("Static device data: %s", static)
 
-    def read_modbus_realtime_data(self) -> tuple[dict | None, list[tuple[int, int]]]:
+    async def read_modbus_realtime_data(self) -> tuple[dict | None, list[tuple[int, int]]]:
         """Read all cyclic registers and decode them into the data dict."""
         if not self._static_data:
-            self._read_static_data()
+            await self._read_static_data()
 
-        registers, failed_ranges = self._read_ranges(READ_RANGES)
+        registers, failed_ranges = await self._read_ranges(READ_RANGES)
         if not registers:
             return None, failed_ranges
 
@@ -479,23 +428,12 @@ class Magna3Hub(DataUpdateCoordinator[dict]):
         data["max_flow_limit"] = round(max_flow * 0.01, 2) if max_flow is not None else None
 
         data.update(self._static_data)
-        self._last_successful_read = datetime.now()
         return data, failed_ranges
 
     async def _async_update_data(self) -> dict:
         """Poll the pump, keeping previous values when a range fails."""
-        if self._last_successful_read is not None:
-            stale_for = (datetime.now() - self._last_successful_read).total_seconds()
-            if stale_for > STALE_CONNECTION_SECONDS:
-                _LOGGER.warning(
-                    "No successful reads for %ss, forcing reconnect", int(stale_for)
-                )
-                self._reset_client()
-
         data = {**(self.data or {})}
-        realtime, failed_ranges = await self.hass.async_add_executor_job(
-            self.read_modbus_realtime_data
-        )
+        realtime, failed_ranges = await self.read_modbus_realtime_data()
 
         if realtime is None:
             data["connection_status"] = "Failed"

@@ -64,8 +64,10 @@ everything runs locally, polling the pump directly.
   Home Assistant host to the CIM module. A CIM 200 can also be reached over
   the network via a Modbus RTU-to-TCP/IP gateway — see the note under
   [Configuration](#configuration).
-- Python dependencies (installed automatically): `pymodbus>=3.6.9`,
-  `pyserial>=3.5`.
+- Python dependency (installed automatically): `modbus-connection[tmodbus]`.
+  On Home Assistant 2026.9 and newer the integration shares its Modbus
+  connection with other integrations talking to the same gateway; on older
+  versions it opens its own connection as before.
 
 ## Installation
 

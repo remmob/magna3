@@ -272,7 +272,8 @@
       "heat_power": {"name": "Warmtevermogen"},
       "alarm": {"name": "Alarm"},
       "warning": {"name": "Waarschuwing"},
-      "connection_status": {"name": "Verbindingsstatus"}
+      "connection_status": {"name": "Verbindingsstatus"},
+      "connection_method": {"name": "Verbindingsmethode"}
     },
     "binary_sensor": {
       "pump_link": {"name": "Pompcommunicatie"},

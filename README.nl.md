@@ -66,8 +66,11 @@ nodig: alles draait lokaal, rechtstreeks uitgelezen van de pomp.
   Home Assistant-host naar de CIM-module. Een CIM 200 is ook via het
   netwerk te benaderen met een Modbus RTU-naar-TCP/IP-gateway — zie de
   opmerking onder [Configuratie](#configuratie).
-- Python-afhankelijkheden (worden automatisch geïnstalleerd):
-  `pymodbus>=3.6.9`, `pyserial>=3.5`.
+- Python-afhankelijkheid (wordt automatisch geïnstalleerd):
+  `modbus-connection[tmodbus]`. Vanaf Home Assistant 2026.9 deelt de
+  integratie zijn Modbus-verbinding met andere integraties die met dezelfde
+  gateway praten; op oudere versies opent hij zoals voorheen een eigen
+  verbinding.
 
 ## Installatie
 

@@ -272,7 +272,8 @@
       "heat_power": {"name": "Heat power"},
       "alarm": {"name": "Alarm"},
       "warning": {"name": "Warning"},
-      "connection_status": {"name": "Connection status"}
+      "connection_status": {"name": "Connection status"},
+      "connection_method": {"name": "Connection method"}
     },
     "binary_sensor": {
       "pump_link": {"name": "Pump communication"},
