@@ -158,13 +158,15 @@ heeft de installateur hem in lokale modus laten staan, dan worden
 schrijfpogingen vanuit Home Assistant anders stilzwijgend door de pomp
 genegeerd.
 
-Om dit voorspelbaar te maken, schakelt elke besturingsentiteit in deze
-integratie **automatisch Bediening op afstand in** vóórdat er iets wordt
-geschreven. Weigert de pomp om in afstandsmodus te gaan (bijvoorbeeld
-omdat het bedieningspaneel vergrendeld is, of de pomp *geforceerd lokaal*
-staat — zie de diagnostische sensor *Geforceerd lokaal*), dan krijg je een
-duidelijke foutmelding in Home Assistant in plaats van een commando dat
-stilletjes niets doet.
+Om dit voorspelbaar te maken, **neemt de integratie de bediening nooit
+zelf over**. Zet eerst de schakelaar **Bediening op afstand** aan. Zolang
+de pomp niet in afstandsmodus staat, weigert elke andere
+besturingsentiteit te schrijven en krijg je een duidelijke foutmelding in
+Home Assistant ("De pomp staat niet in bediening op afstand") in plaats
+van een commando dat stilletjes niets doet. Blijft de schakelaar niet aan
+staan (bijvoorbeeld omdat het bedieningspaneel vergrendeld is, of de pomp
+*geforceerd lokaal* staat — zie de diagnostische sensor *Geforceerd
+lokaal*), los dat dan eerst op de pomp zelf op.
 
 ## Instellingen & meldingen
 

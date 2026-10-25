@@ -152,12 +152,14 @@ is active on the pump itself. If you flip the physical R100 remote or the
 pump's local buttons, or if the installer left it in local mode, Home
 Assistant's write attempts will otherwise be silently ignored by the pump.
 
-To make this predictable, every control entity in this integration
-**automatically turns on Remote control** before writing anything. If the
-pump refuses to enter remote mode (e.g. its keypad is locked, or it has
-been *forced to local* — see the *Forced to local* diagnostic sensor), you
-get a clear Home Assistant error instead of a command that silently does
-nothing.
+To make this predictable, the integration **never takes over control on
+its own**. Turn on the **Remote control** switch first. Until the pump
+reports remote mode, every other control entity refuses to write and shows
+a clear Home Assistant error ("The pump is not in remote control mode")
+instead of sending a command that silently does nothing. If the switch
+does not stay on (e.g. the keypad is locked, or the pump has been *forced
+to local* — see the *Forced to local* diagnostic sensor), resolve that on
+the pump itself first.
 
 ## Settings & notifications
 
