@@ -149,24 +149,11 @@ bedient:
 | **Maximale-debietbegrenzing** | number | Het debietplafond (m³/h) dat geldt zolang de debietbegrenzing aan staat. |
 | **Alarm resetten** | button | Wist het actuele alarm/de waarschuwing op de pomp. |
 
-### Waarom "Bediening op afstand" belangrijk is
+### Bediening op afstand
 
-Grundfos-pompen accepteren Modbus-commando's alleen zolang **bediening op
-afstand (Modbus-besturing)** op de pomp zelf actief is. Zet je de fysieke
-R100-afstandsbediening om, gebruik je de lokale knoppen op de pomp, of
-heeft de installateur hem in lokale modus laten staan, dan worden
-schrijfpogingen vanuit Home Assistant anders stilzwijgend door de pomp
-genegeerd.
-
-Om dit voorspelbaar te maken, **neemt de integratie de bediening nooit
-zelf over**. Zet eerst de schakelaar **Bediening op afstand** aan. Zolang
-de pomp niet in afstandsmodus staat, weigert elke andere
-besturingsentiteit te schrijven en krijg je een duidelijke foutmelding in
-Home Assistant ("De pomp staat niet in bediening op afstand") in plaats
-van een commando dat stilletjes niets doet. Blijft de schakelaar niet aan
-staan (bijvoorbeeld omdat het bedieningspaneel vergrendeld is, of de pomp
-*geforceerd lokaal* staat — zie de diagnostische sensor *Geforceerd
-lokaal*), los dat dan eerst op de pomp zelf op.
+De pomp accepteert alleen opdrachten van Home Assistant als de schakelaar
+**Bediening op afstand** aan staat. Zet die dus eerst aan. Tot die tijd geven
+de andere bedieningselementen een foutmelding en veranderen ze niets.
 
 ## Instellingen & meldingen
 

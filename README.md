@@ -145,21 +145,11 @@ pump:
 | **Maximum flow limit** | number | The flow ceiling (m³/h) used when the flow limit switch is on. |
 | **Reset alarm** | button | Clears the current alarm/warning on the pump. |
 
-### Why "Remote control" matters
+### Remote control
 
-Grundfos pumps only accept Modbus commands while **remote (Modbus) control**
-is active on the pump itself. If you flip the physical R100 remote or the
-pump's local buttons, or if the installer left it in local mode, Home
-Assistant's write attempts will otherwise be silently ignored by the pump.
-
-To make this predictable, the integration **never takes over control on
-its own**. Turn on the **Remote control** switch first. Until the pump
-reports remote mode, every other control entity refuses to write and shows
-a clear Home Assistant error ("The pump is not in remote control mode")
-instead of sending a command that silently does nothing. If the switch
-does not stay on (e.g. the keypad is locked, or the pump has been *forced
-to local* — see the *Forced to local* diagnostic sensor), resolve that on
-the pump itself first.
+The pump only accepts commands from Home Assistant when the **Remote control**
+switch is on. Turn it on first. Until then, the other controls show an error
+and change nothing.
 
 ## Settings & notifications
 
