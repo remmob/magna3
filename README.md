@@ -2,7 +2,7 @@
 [![en](https://img.shields.io/badge/lang-en-red.svg)](README.md)
 [![nl](https://img.shields.io/badge/lang-nl-orange.svg)](README.nl.md)
 
-![Version](https://img.shields.io/github/v/release/remmob/magna3 'Release') ![Downloads](https://img.shields.io/github/downloads/remmob/magna3/total 'Downloads') ![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg 'HACS Custom') ![HA min](https://img.shields.io/badge/Home%20Assistant-2024.6%2B-41BDF5.svg 'Minimum Home Assistant version') [![total issues](https://img.shields.io/github/issues/remmob/magna3 'Total issues')](https://github.com/remmob/magna3/issues) ![Stars](https://img.shields.io/github/stars/remmob/magna3)
+![Version](https://img.shields.io/github/v/release/remmob/magna3 'Release') ![Downloads](https://img.shields.io/github/downloads/remmob/magna3/total 'Downloads') ![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg 'Default Home') [![Marketplace](https://img.shields.io/badge/Marketplace-Default-41BDF5.svg 'Home Assistant Marketplace')](https://my.home-assistant.io/redirect/marketplace_repository/?owner=remmob&repository=magna3&category=integration) ![HA min](https://img.shields.io/badge/Home%20Assistant-2024.6%2B-41BDF5.svg 'Minimum Home Assistant version') [![total issues](https://img.shields.io/github/issues/remmob/magna3 'Total issues')](https://github.com/remmob/magna3/issues) ![Stars](https://img.shields.io/github/stars/remmob/magna3)
 
 # Grundfos MAGNA3 – Modbus integration for Home Assistant
 
@@ -71,7 +71,27 @@ everything runs locally, polling the pump directly.
 
 ## Installation
 
-> ℹ️ Not in the HACS default store yet — install via custom repository or manually for now.
+### Marketplace (Home Assistant 2026.11 and newer)
+
+Since Home Assistant 2026.11, HACS is built into Home Assistant as the **Marketplace**. Grundfos MAGNA3 is available there.
+
+[![Open your Home Assistant instance and open a repository inside the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=remmob&repository=magna3&category=integration)
+
+1. Go to **Settings** > **Marketplace**.
+2. Search for **Grundfos MAGNA3** and open it (or use the button above).
+3. Click **Download**.
+4. **Restart Home Assistant**.
+
+### HACS (default store, Home Assistant 2026.10 and older)
+
+Grundfos MAGNA3 is available in the [HACS](https://hacs.xyz) default store.
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=remmob&repository=magna3&category=integration)
+
+1. Open **HACS** in Home Assistant.
+2. Search for **Grundfos MAGNA3** and open it (or use the button above).
+3. Click **Download**.
+4. **Restart Home Assistant**.
 
 ### HACS (custom repository)
 
