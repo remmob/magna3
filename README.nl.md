@@ -2,7 +2,7 @@
 [![en](https://img.shields.io/badge/lang-en-red.svg)](README.md)
 [![nl](https://img.shields.io/badge/lang-nl-orange.svg)](README.nl.md)
 
-![Version](https://img.shields.io/github/v/release/remmob/magna3 'Release') ![Downloads](https://img.shields.io/github/downloads/remmob/magna3/total 'Downloads') ![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg 'Default Home') [![Marketplace](https://img.shields.io/badge/Marketplace-Default-41BDF5.svg 'Home Assistant Marketplace')](https://my.home-assistant.io/redirect/marketplace_repository/?owner=remmob&repository=magna3&category=integration) ![HA min](https://img.shields.io/badge/Home%20Assistant-2024.6%2B-41BDF5.svg 'Minimum Home Assistant version') [![total issues](https://img.shields.io/github/issues/remmob/magna3 'Total issues')](https://github.com/remmob/magna3/issues) ![Stars](https://img.shields.io/github/stars/remmob/magna3)
+![Version](https://img.shields.io/github/v/release/remmob/magna3 'Release') ![Downloads](https://img.shields.io/github/downloads/remmob/magna3/total 'Downloads') ![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg 'Default Home') [![Marketplace](https://img.shields.io/badge/Marketplace-Default-41BDF5.svg 'Home Assistant Marketplace')](https://my.home-assistant.io/redirect/marketplace_repository/?owner=remmob&repository=magna3&category=integration) ![HA min](https://img.shields.io/badge/Home%20Assistant-2026.5%2B-41BDF5.svg 'Minimum Home Assistant version') [![total issues](https://img.shields.io/github/issues/remmob/magna3 'Total issues')](https://github.com/remmob/magna3/issues) ![Stars](https://img.shields.io/github/stars/remmob/magna3)
 
 # Grundfos MAGNA3 – Modbus-integratie voor Home Assistant
 
@@ -129,7 +129,7 @@ De installatiewizard doorloopt een paar stappen:
    | Modus | Velden |
    |-------|--------|
    | TCP (CIM 500) | Host, poort (standaard `502`), scaninterval |
-   | Serieel (CIM 200) | Seriële poort, baudrate, pariteit, stopbits, scaninterval |
+   | Serieel (CIM 200) | Seriële poort (USB-adapter of seriële proxy van ESPHome), baudrate, pariteit, stopbits, scaninterval |
 
    De CIM 200 staat standaard op **even pariteit, 1 stopbit**; ook *geen
    pariteit, 2 stopbits* wordt ondersteund als je die instelling hebt

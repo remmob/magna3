@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import asyncio
 import ipaddress
 import logging
 import re
 
-import serial.tools.list_ports
 import voluptuous as vol
 
 from homeassistant import config_entries
@@ -176,13 +174,27 @@ def _tcp_schema_fields(current: dict) -> dict:
     }
 
 
+# Home Assistant's own serial port picker (HA 2026.5+), the same one ZHA and
+# Z-Wave use. Unlike pyserial's port listing it also shows the serial proxies
+# of ESPHome devices (esphome-hass:// URLs), which tmodbus opens through
+# serialx like any other port.
+SERIAL_PORT_SELECTOR = selector.SerialPortSelector(
+    selector.SerialPortSelectorConfig()
+)
+
+
+def _device_key(default_device: str) -> vol.Required:
+    """Key of the serial port field; preselects the stored port if there is one."""
+    if default_device:
+        return vol.Required(CONF_DEVICE, default=default_device)
+    return vol.Required(CONF_DEVICE)
+
+
 def _serial_schema_fields(
-    current: dict, serial_ports: list[str], default_device: str
+    current: dict, default_device: str
 ) -> dict:
     return {
-        vol.Required(CONF_DEVICE, default=default_device): (
-            vol.In(serial_ports) if serial_ports else str
-        ),
+        _device_key(default_device): SERIAL_PORT_SELECTOR,
         vol.Required(
             CONF_BAUDRATE, default=str(current.get(CONF_BAUDRATE, DEFAULT_BAUDRATE))
         ): vol.All(_options_selector(ALLOWED_BAUDRATES), vol.Coerce(int)),
@@ -400,14 +412,6 @@ def _flatten_sections(user_input: dict) -> dict:
     return flat
 
 
-async def _get_serial_ports() -> list[str]:
-    loop = asyncio.get_running_loop()
-    return await loop.run_in_executor(
-        None,
-        lambda: [port.device for port in serial.tools.list_ports.comports()],
-    )
-
-
 @callback
 def configured_connections(hass: HomeAssistant) -> set[str]:
     """Return already configured connection ids."""
@@ -476,25 +480,19 @@ class Magna3ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_serial(self, user_input=None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
-        serial_ports = await _get_serial_ports()
-        default_device = self._data.get(CONF_DEVICE) or (
-            serial_ports[0] if serial_ports else ""
-        )
+        default_device = self._data.get(CONF_DEVICE, "")
 
         if user_input is not None:
             candidate = {**self._data, **user_input}
             candidate[CONF_BYTESIZE] = DEFAULT_BYTESIZE
 
-            if serial_ports and candidate[CONF_DEVICE] not in serial_ports:
-                errors[CONF_DEVICE] = "invalid_serial_port"
-            else:
-                self._data = candidate
-                return await self.async_step_notifications()
+            self._data = candidate
+            return await self.async_step_notifications()
 
         return self.async_show_form(
             step_id="serial",
             data_schema=vol.Schema(
-                _serial_schema_fields(self._data, serial_ports, default_device)
+                _serial_schema_fields(self._data, default_device)
             ),
             errors=errors,
         )
@@ -587,30 +585,24 @@ class Magna3ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if entry is None:
             return self.async_abort(reason="unknown")
 
-        serial_ports = await _get_serial_ports()
-        default_device = self._data.get(
-            CONF_DEVICE, serial_ports[0] if serial_ports else ""
-        )
+        default_device = self._data.get(CONF_DEVICE, "")
 
         if user_input is not None:
             merged = {**self._data, **user_input}
             merged[CONF_MODE] = MODE_SERIAL
             merged[CONF_BYTESIZE] = DEFAULT_BYTESIZE
 
-            if serial_ports and merged[CONF_DEVICE] not in serial_ports:
-                errors[CONF_DEVICE] = "invalid_serial_port"
-            else:
-                return self.async_update_reload_and_abort(
-                    entry,
-                    unique_id=_connection_unique_id(merged),
-                    data=merged,
-                    reason="reconfigure_successful",
-                )
+            return self.async_update_reload_and_abort(
+                entry,
+                unique_id=_connection_unique_id(merged),
+                data=merged,
+                reason="reconfigure_successful",
+            )
 
         return self.async_show_form(
             step_id="reconfigure_serial",
             data_schema=vol.Schema(
-                _serial_schema_fields(self._data, serial_ports, default_device)
+                _serial_schema_fields(self._data, default_device)
             ),
             errors=errors,
         )
